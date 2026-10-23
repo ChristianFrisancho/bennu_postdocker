@@ -13,7 +13,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(crud_trabajadores.class)
-class CrudTest {
+class TrabajadoresTest {
 
     @Autowired
     private MockMvc mockMvc;
