@@ -1,0 +1,27 @@
+services:
+  db_trabajadores:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: bennu
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: trabajadores
+    ports:
+      - "5433:5432"
+    volumes:
+      - datos_trabajadores:/var/lib/postgresql/data
+  aplicacion:
+    image: eclipse-temurin:17-jre-alpine
+    volumes:
+      - ./springboot/target/springboot-0.0.1-SNAPSHOT.jar:/app/aplicacion.jar
+    command: ["java", "-jar", "/app/aplicacion.jar"]
+    environment:
+      DB_URL: jdbc:postgresql://db_trabajadores:5432/trabajadores
+      DB_USER: bennu
+      DB_PASSWORD: admin
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db_trabajadores
+volumes:
+  datos_trabajadores:
+    external: true
