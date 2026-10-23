@@ -37,10 +37,10 @@ class SucursalesTest {
 
     @Test
     void noexistesucursal() throws Exception {
-        given(mapper.buscarPorId(999))
+        given(mapper.buscarPorId(389))
                 .willReturn(null);
 
-        mockMvc.perform(get("/api/sucursales/{idSucursal}", 999))
+        mockMvc.perform(get("/api/sucursales/{idSucursal}", 389))
                 .andExpect(status().isNotFound());
     }
 }

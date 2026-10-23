@@ -36,10 +36,10 @@ class TrabajadoresTest {
 
     @Test
     void noexisteusuario() throws Exception {
-        given(mapper.buscarPorDni("99999999"))
+        given(mapper.buscarPorDni("39042018"))
                 .willReturn(null);
 
-        mockMvc.perform(get("/api/trabajadores/{dni}", "99999999"))
+        mockMvc.perform(get("/api/trabajadores/{dni}", "39042018"))
                 .andExpect(status().isNotFound());
     }
 }
