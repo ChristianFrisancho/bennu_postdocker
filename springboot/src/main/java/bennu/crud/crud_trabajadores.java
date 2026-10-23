@@ -5,9 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -17,11 +15,11 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/trabajadores")
-public class crud {
+public class crud_trabajadores {
 
     private final trabajadores mapper;
 
-    public crud(trabajadores mapper) {
+    public crud_trabajadores(trabajadores mapper) {
         this.mapper = mapper;
     }
 
@@ -118,12 +116,6 @@ public class crud {
         if (filasEliminadas == 0) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Trabajador no encontrado");
         }
-    }
-
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ProblemDetail conflicto(DataIntegrityViolationException excepcion) {
-        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
-                "La operacion entra en conflicto: DNI duplicado, sucursal inexistente o registros asociados.");
     }
 
     public record DatosTrabajador(

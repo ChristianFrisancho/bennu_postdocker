@@ -12,7 +12,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(crud.class)
+@WebMvcTest(crud_trabajadores.class)
 class CrudTest {
 
     @Autowired
