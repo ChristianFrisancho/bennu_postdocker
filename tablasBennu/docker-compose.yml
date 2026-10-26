@@ -1,0 +1,38 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/trabajadores
+      DB_USER: bennu
+      DB_PASSWORD: ${DB_PASSWORD:-admin}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: trabajadores
+      POSTGRES_USER: bennu
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-admin}
+    ports:
+      - "5433:5432"
+    volumes:
+      - datosTrabajadores:/var/lib/postgresql/data
+      - ./src/main/resources/db/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bennu -d trabajadores"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  datosTrabajadores:
+    external: true
+    name: datos_trabajadores

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cl.bennu.tablasbennu.mapper.TrabajadorMapper">
+
+    <resultMap id="trabajadorMap" type="cl.bennu.tablasbennu.model.Trabajador">
+        <id property="idTrabajador" column="id_trabajador"/>
+        <result property="idSucursal" column="id_sucursal"/>
+        <result property="dni" column="dni"/>
+        <result property="nombres" column="nombres"/>
+        <result property="apellidos" column="apellidos"/>
+        <result property="puesto" column="puesto"/>
+    </resultMap>
+
+    <sql id="sqlTrabajador">
+        <!-- @formatter:off -->
+        SELECT
+            t.id_trabajador
+            , t.id_sucursal
+            , t.dni
+            , t.nombres
+            , t.apellidos
+            , t.puesto
+        FROM trabajadores t
+        <!-- @formatter:on -->
+    </sql>
+
+    <select id="leerTodos" resultMap="trabajadorMap">
+        <include refid="sqlTrabajador"/>
+        ORDER BY t.id_trabajador
+    </select>
+
+    <select id="buscarPorNombre" resultMap="trabajadorMap">
+        <include refid="sqlTrabajador"/>
+        WHERE LOWER(t.nombres) LIKE LOWER(CONCAT('%', #{nombre}, '%'))
+        ORDER BY t.id_trabajador
+    </select>
+
+    <select id="buscarPorDni" resultMap="trabajadorMap">
+        <include refid="sqlTrabajador"/>
+        WHERE t.dni = #{dni}
+    </select>
+
+    <insert id="crearTrabajador">
+        <!-- @formatter:off -->
+        INSERT INTO trabajadores (
+            id_sucursal
+            , dni
+            , nombres
+            , apellidos
+            , puesto
+        ) VALUES (
+            #{idSucursal}
+            , #{dni}
+            , #{nombres}
+            , #{apellidos}
+            , #{puesto}
+        )
+        <!-- @formatter:on -->
+    </insert>
+
+    <update id="actualizarTrabajador">
+        <!-- @formatter:off -->
+        UPDATE trabajadores SET
+            id_sucursal = #{idSucursal}
+            , dni = #{dni}
+            , nombres = #{nombres}
+            , apellidos = #{apellidos}
+            , puesto = #{puesto}
+        WHERE dni = #{dniActual}
+        <!-- @formatter:on -->
+    </update>
+
+    <update id="actualizarPuesto">
+        UPDATE trabajadores SET puesto = #{puesto} WHERE dni = #{dni}
+    </update>
+
+    <delete id="eliminarTrabajador">
+        DELETE FROM trabajadores WHERE dni = #{dni}
+    </delete>
+
+</mapper>

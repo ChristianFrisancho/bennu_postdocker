@@ -1,0 +1,24 @@
+#!/bin/sh
+set -eu
+cd "$(dirname "$0")"
+if command -v mvn >/dev/null 2>&1; then
+    exec mvn "$@"
+fi
+mavenVersion=3.10.0
+distributionRoot="${MAVEN_USER_HOME:-$HOME/.m2}/wrapper/dists/apache-maven-$mavenVersion"
+if [ -d "$distributionRoot" ]; then
+    mavenExecutable=$(find "$distributionRoot" -type f -path '*/bin/mvn' -print -quit)
+    if [ -n "$mavenExecutable" ]; then
+        exec "$mavenExecutable" "$@"
+    fi
+fi
+command -v curl >/dev/null 2>&1 || { echo 'Se requiere curl o Maven instalado.' >&2; exit 1; }
+command -v sha512sum >/dev/null 2>&1 || { echo 'Se requiere sha512sum o Maven instalado.' >&2; exit 1; }
+archivePath="$(mktemp -d)/maven.tar.gz"
+downloadUrl="https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/$mavenVersion/apache-maven-$mavenVersion-bin.tar.gz"
+curl -fsSL "$downloadUrl" -o "$archivePath"
+checksum=$(curl -fsSL "$downloadUrl.sha512" | awk '{print $1}')
+printf '%s  %s\n' "$checksum" "$archivePath" | sha512sum -c -
+mkdir -p "$distributionRoot"
+tar -xzf "$archivePath" -C "$distributionRoot"
+exec "$distributionRoot/apache-maven-$mavenVersion/bin/mvn" "$@"
