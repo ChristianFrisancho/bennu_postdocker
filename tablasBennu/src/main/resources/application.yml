@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: tablasBennu
+  banner:
+    location: classpath:/banner
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/trabajadores}
+    username: ${DB_USER:bennu}
+    password: ${DB_PASSWORD:admin}
+  sql:
+    init:
+      mode: never
+
+mybatis:
+  config-location: classpath:mybatis-config.xml
+  mapper-locations: classpath:mapper/example.xml
+
+app:
+  cors:
+    origins: ${CORS_ORIGINS:http://localhost:3000,http://localhost:5173}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+server:
+  port: ${PORT:8080}
+  compression:
+    enabled: true
+    mime-types: application/json
