@@ -2,23 +2,72 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="cl.bennu.tablasbennu.mapper.ResultMaps">
+<mapper namespace="cl.bennu.tablasbennu.mapper.SucursalMapper">
 
-    <!-- column: nombre en PostgreSQL. property: propiedad existente en el modelo Java. -->
     <resultMap id="sucursalMap" type="cl.bennu.tablasbennu.model.Sucursal">
-        <id column="id_sucursal" property="idSucursal"/>
-        <result column="id_pais" property="idPais"/>
-        <result column="nombre" property="nombre"/>
-        <result column="hora" property="hora"/>
+        <id property="idSucursal" column="id_sucursal"/>
+        <result property="idPais" column="id_pais"/>
+        <result property="nombre" column="nombre"/>
+        <result property="hora" column="hora"/>
     </resultMap>
 
-    <resultMap id="trabajadorMap" type="cl.bennu.tablasbennu.model.Trabajador">
-        <id column="id_trabajador" property="idTrabajador"/>
-        <result column="id_sucursal" property="idSucursal"/>
-        <result column="dni" property="dni"/>
-        <result column="nombres" property="nombres"/>
-        <result column="apellidos" property="apellidos"/>
-        <result column="puesto" property="puesto"/>
-    </resultMap>
+    <sql id="sqlSucursal">
+        <!-- @formatter:off -->
+        SELECT s.id_sucursal, s.id_pais, s.nombre, s.hora
+        FROM sucursales s
+        <!-- @formatter:on -->
+    </sql>
+
+    <select id="listarSucursales" resultMap="sucursalMap">
+        <include refid="sqlSucursal"/>
+        ORDER BY s.id_sucursal
+    </select>
+
+    <select id="buscarPorId" resultMap="sucursalMap">
+        <include refid="sqlSucursal"/>
+        WHERE s.id_sucursal = #{idSucursal}
+    </select>
+
+    <insert id="crearSucursal">
+        <!-- @formatter:off -->
+        INSERT INTO sucursales (
+            id_pais
+            , nombre
+            , hora
+        ) VALUES (
+            #{idPais}
+            , #{nombre}
+            , #{hora}
+        )
+        <!-- @formatter:on -->
+    </insert>
+
+    <select id="obtenerIdSucursalCreada" resultType="int">
+        SELECT currval(pg_get_serial_sequence('sucursales', 'id_sucursal'))
+    </select>
+
+    <update id="actualizarSucursal">
+        <!-- @formatter:off -->
+        UPDATE sucursales SET
+            id_pais = #{idPais}
+            , nombre = #{nombre}
+            , hora = #{hora}
+        WHERE id_sucursal = #{idSucursal}
+        <!-- @formatter:on -->
+    </update>
+
+    <update id="actualizarParcialmente">
+        UPDATE sucursales
+        <set>
+            <if test="idPais != null">id_pais = #{idPais},</if>
+            <if test="nombre != null">nombre = #{nombre},</if>
+            <if test="hora != null">hora = #{hora},</if>
+        </set>
+        WHERE id_sucursal = #{idSucursal}
+    </update>
+
+    <delete id="eliminarSucursal">
+        DELETE FROM sucursales WHERE id_sucursal = #{idSucursal}
+    </delete>
 
 </mapper>

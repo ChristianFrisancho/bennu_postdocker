@@ -9,9 +9,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
+import bennu.crud.modelo.Trabajador;
 import java.util.List;
 import java.util.Map;
+import lombok.AccessLevel;
+import lombok.Setter;
+import lombok.Data;
+import lombok.ToString;
 
 @RestController
 @RequestMapping("/api/trabajadores")
@@ -25,12 +29,16 @@ public class crud_trabajadores {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @Transactional
-    public Map<String, Object> crearTrabajador(@Valid @RequestBody DatosTrabajador datos) {
-        int filasInsertadas = mapper.crearTrabajador(datos.idSucursal(), datos.dni(),
-                datos.nombres(), datos.apellidos(), datos.puesto());
+    
+    
+    public Map<String, Object> crearTrabajador(@Valid @RequestBody Trabajador datos) {
+        if (mapper.buscarPorDni(datos.getDni())!= null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "El dni ya existe en la base de datos");
+        }
+        int filasInsertadas = mapper.crearTrabajador(datos.getIdSucursal(), datos.getDni(), datos.getNombres(), datos.getApellidos(), datos.getPuesto());
         System.out.println("Trabajador insertado : " + filasInsertadas);
-        return buscarTrabajadorPorDni(datos.dni());
+        return buscarTrabajadorPorDni(datos.getDni());
+        
     }
 
     @PostMapping("/buscar")
@@ -38,6 +46,9 @@ public class crud_trabajadores {
         String dni = datos.get("dni");
         if (dni == null || dni.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El DNI es obligatorio");
+        }
+        if (dni == mapper.buscarPorDni(dni).get("dni")) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "El dni ya existe en la base de datos");
         }
         return buscarTrabajadorPorDni(dni);
     }
@@ -84,12 +95,12 @@ public class crud_trabajadores {
     @PutMapping("/{dni}")
     @Transactional
     public Map<String, Object> actualizarTrabajador(@PathVariable String dni,
-                                                   @Valid @RequestBody DatosTrabajador datos) {
-        if (mapper.actualizarTrabajador(dni, datos.idSucursal(), datos.dni(),
-                datos.nombres(), datos.apellidos(), datos.puesto()) == 0) {
+                                                   @Valid @RequestBody Trabajador datos) {
+        if (mapper.actualizarTrabajador(dni, datos.getIdSucursal(), datos.getDni(),
+                datos.getNombres(), datos.getApellidos(), datos.getPuesto()) == 0) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Trabajador no encontrado");
         }
-        return buscarTrabajadorPorDni(datos.dni());
+        return buscarTrabajadorPorDni(datos.getDni());
     }
 
     @PatchMapping("/{dni}/puesto")
@@ -118,11 +129,5 @@ public class crud_trabajadores {
         }
     }
 
-    public record DatosTrabajador(
-            @NotNull @Positive Integer idSucursal,
-            @NotBlank @Size(max = 20) String dni,
-            @NotBlank @Size(max = 100) String nombres,
-            @NotBlank @Size(max = 100) String apellidos,
-            @NotBlank @Size(max = 80) String puesto) {
-    }
+
 }
